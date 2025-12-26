@@ -1,0 +1,9 @@
+plugins:
+  debate_enabled:
+    default: true
+  debate_allow_change:
+    default: true
+  debate_allow_anonymous:
+    default: true
+  debate_enabled_categories:
+    type: category_list
