@@ -1,3 +1,4 @@
+import Component from "@glimmer/component";
 import { withPluginApi } from "discourse/lib/plugin-api";
 
 export default {
