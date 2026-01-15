@@ -2,6 +2,8 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { tracked } from "@glimmer/tracking";
 import { inject as service } from "@ember/service";
+import { on } from "@ember/modifier";
+import { fn } from "@ember/helper";
 import ajax from "discourse/lib/ajax";
 
 export default class DebatePanel extends Component {
@@ -59,7 +61,6 @@ export default class DebatePanel extends Component {
         },
       });
 
-      // 🔁 reload counts after vote
       await this.loadCounts();
     } finally {
       this.isSaving = false;
@@ -78,7 +79,7 @@ export default class DebatePanel extends Component {
             <input
               type="radio"
               name="debate-stance"
-              value="favor"
+              checked={{eq this.stance "favor"}}
               {{on "change" (fn this.selectStance "favor")}}
             />
             For
@@ -88,7 +89,7 @@ export default class DebatePanel extends Component {
             <input
               type="radio"
               name="debate-stance"
-              value="neutral"
+              checked={{eq this.stance "neutral"}}
               {{on "change" (fn this.selectStance "neutral")}}
             />
             Neutral
@@ -98,7 +99,7 @@ export default class DebatePanel extends Component {
             <input
               type="radio"
               name="debate-stance"
-              value="against"
+              checked={{eq this.stance "against"}}
               {{on "change" (fn this.selectStance "against")}}
             />
             Against
