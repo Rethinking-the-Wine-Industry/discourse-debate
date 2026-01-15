@@ -1,24 +1,51 @@
+# frozen_string_literal: true
+
 # name: discourse-debates
-# about: Debate stance + stats + sidebar + admin analytics
-# version: 0.2
-# author: You
-# url: https://github.com/you/discourse-debates
+# about: Structured debates with suggestion box, voting, and stance selection
+# version: 0.1.0
+# authors: Your Name
+# url: https://github.com/your-org/discourse-debates
 
 enabled_site_setting :debate_enabled
 
-register_asset "stylesheets/debate.scss"
+register_asset "stylesheets/debates.scss"
 
 after_initialize do
-  require_relative "lib/debate_engine"
-  require_relative "app/serializers/topic_view_serializer_extension"
+  module ::DiscourseDebates
+    PLUGIN_NAME = "discourse-debates"
+  end
 
-  require_dependency "topic_view_serializer"
+  # == Models ==
+  require_relative "app/models/debate_stance"
 
-  class ::TopicViewSerializer
-    attributes :debate_stats
+  # == Controllers ==
+  require_relative "app/controllers/discourse_debates/stances_controller"
 
-    def debate_stats
-      DebateStat.for_topic(object.topic.id)
-    end
+  # == Routes ==
+  Discourse::Application.routes.append do
+    mount ::DiscourseDebates::Engine, at: "/debate"
+  end
+
+  # == Topic Custom Fields ==
+  Topic.register_custom_field_type("debate_counts", :json)
+  Topic.register_custom_field_type("is_debate", :boolean)
+
+  TopicUserCustomField.register_custom_field_type("debate_stance", :string)
+
+  # == Preload fields for serializers ==
+  add_to_serializer(:topic_view, :debate_counts) do
+    object.topic.custom_fields["debate_counts"]
+  end
+
+  add_to_serializer(:topic_view, :is_debate) do
+    object.topic.custom_fields["is_debate"]
+  end
+
+  add_to_serializer(:topic_view, :debate_stance) do
+    TopicUserCustomField.where(
+      topic_id: object.topic.id,
+      user_id: scope.user&.id,
+      name: "debate_stance"
+    ).pluck(:value).first
   end
 end
