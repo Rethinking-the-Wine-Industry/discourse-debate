@@ -30,8 +30,6 @@ after_initialize do
   Topic.register_custom_field_type("debate_counts", :json)
   Topic.register_custom_field_type("is_debate", :boolean)
 
-  TopicUserCustomField.register_custom_field_type("debate_stance", :string)
-
   # == Preload fields for serializers ==
   add_to_serializer(:topic_view, :debate_counts) do
     object.topic.custom_fields["debate_counts"]
