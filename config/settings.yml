@@ -1,2 +1,3 @@
-debate_enabled:
-  default: true
+discourse-debates:
+  debate_enabled:
+    default: true

@@ -4,6 +4,8 @@
 # authors: You
 # url: https://github.com/you/discourse-debates
 
+register_asset "config/settings.yml"
+
 enabled_site_setting :debate_enabled
 
 after_initialize do
