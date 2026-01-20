@@ -1,7 +1,2 @@
 debate_enabled:
   default: true
-  client: true
-
-debate_enabled_categories:
-  type: category_list
-  default: ""
