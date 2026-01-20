@@ -4,7 +4,7 @@
 # about: Structured debates with suggestion box, voting, and stance selection
 # version: 0.1.0
 # authors: Your Name
-# url: https://github.com/your-org/discourse-debates
+# url: https://github.com/Rethinking-the-Wine-Industry/discourse-debates
 
 enabled_site_setting :debate_enabled
 

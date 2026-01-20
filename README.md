@@ -20,7 +20,6 @@ It is built to support **serious structured decision-making**, community brainst
 - Comments are blocked during this stage to prevent biased discussion.
 - Users can optionally **vote anonymously**.
 - After a configurable time window (default: 7 days):
-
   - If votes ≥ configured threshold (default: 10), it **automatically becomes a debate**
   - Otherwise it expires and is archived.
 
@@ -34,14 +33,12 @@ Once promoted to debate:
 - Comments become enabled
 - Still **no replies to replies** — users may only comment directly on the original topic post (prevents branching arguments)
 - Users get a **stance selector (radio group)**:
-
   - 👍 Support
   - 😐 Neutral
   - 👎 Against
 
 - Users can optionally **hide their identity**
 - A **right-side debate statistics panel** shows:
-
   - Support count
   - Neutral count
   - Against count
@@ -148,7 +145,7 @@ sudo nano containers/app.yml
 Inside the `plugins:` section, add:
 
 ```
-- git clone https://github.com/Rethinking-the-Wine-Industry/discourse-debate
+- git clone https://github.com/Rethinking-the-Wine-Industry/discourse-debates
 ```
 
 3️⃣ Rebuild Discourse:
