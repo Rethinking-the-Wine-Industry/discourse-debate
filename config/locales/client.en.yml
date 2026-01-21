@@ -1,9 +1,0 @@
-en:
-  admin_js:
-    admin:
-      site_settings:
-        categories:
-          discourse_debates: "Discourse Debates"
-  js:
-    discourse_plugin_name:
-      placeholder: placeholder
