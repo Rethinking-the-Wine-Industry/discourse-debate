@@ -7,7 +7,7 @@
 # url: TODO
 # required_version: 2.7.0
 
-enabled_site_setting :discourse_debates_enabled
+enabled_site_setting :debates_enabled
 
 module ::DiscourseDebatesModule
   PLUGIN_NAME = "debates"
