@@ -9,7 +9,7 @@
 
 enabled_site_setting :debates_enabled
 
-module ::DiscourseDebatesModule
+module ::DebatesModule
   PLUGIN_NAME = "debates"
 end
 
