@@ -13,7 +13,7 @@ module ::DebatesModule
   PLUGIN_NAME = "debates"
 end
 
-require_relative "lib/discourse_debates_module/engine"
+require_relative "lib/debates_module/engine"
 
 after_initialize do
   # Code which should run after Rails has finished booting
