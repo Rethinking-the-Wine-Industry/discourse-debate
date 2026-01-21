@@ -1,3 +1,4 @@
 en:
   site_settings:
     discourse_debates_enabled: "Enable Debates"
+    discourse_debates_suggestion_min_votes: "Min votes for a Suggestion to become a Debate"
