@@ -4,7 +4,7 @@ module DiscourseDebates
 
     belongs_to :topic
 
-    enum status: {
+    enum :status, {
       suggestion: 0,
       open: 1,
       closed: 2
