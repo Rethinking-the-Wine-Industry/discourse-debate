@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-module ::DiscourseDebates
+module DiscourseDebates
   class DebateController < ::ApplicationController
     requires_plugin "discourse-debates"
 
