@@ -3,7 +3,7 @@ en:
     admin:
       site_settings:
         categories:
-          debates: "Debates"
+          discourse_debates: "Discourse Debates"
   js:
     discourse_plugin_name:
       placeholder: placeholder

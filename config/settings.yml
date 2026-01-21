@@ -1,4 +1,4 @@
 debates:
-  debates_enabled:
+  discourse_debates_enabled:
     default: false
     client: true

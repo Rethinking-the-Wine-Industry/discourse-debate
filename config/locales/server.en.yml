@@ -1,3 +1,3 @@
 en:
   site_settings:
-    debates_enabled: "Enable debates"
+    discourse_debates_enabled: "Enable Discourse Debates"
