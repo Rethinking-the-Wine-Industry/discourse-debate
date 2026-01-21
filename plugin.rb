@@ -1,20 +1,14 @@
-# frozen_string_literal: true
-
 # name: discourse-debates
 # about: Debate + Suggestion Box
 # version: 0.1
-# authors: You
-# url: TODO
-# required_version: 2.7.0
+# authors: Rethinking Wine
+# url: https://github.com/Rethinking-the-Wine-Industry/discourse-debates
 
-enabled_site_setting :debates_enabled
+enabled_site_setting :debate_enabled
 
-module ::DebatesModule
-  PLUGIN_NAME = "debates"
-end
-
-require_relative "lib/debates_module/engine"
+require_relative "lib/discourse_debates/engine"
 
 after_initialize do
-  # Code which should run after Rails has finished booting
+  # Backend será adicionado aqui nos próximos passos
 end
+
