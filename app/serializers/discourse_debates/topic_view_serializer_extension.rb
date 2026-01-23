@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DiscourseDebates
   module TopicViewSerializerExtension
     def self.prepended(base)
@@ -5,36 +7,28 @@ module DiscourseDebates
     end
 
     def debate_suggestion
-      return nil unless suggestion_topic?
+      topic = object.topic
+      return nil unless suggestion_topic?(topic)
 
-      votes = DiscourseDebates::SuggestionVote
-        .where(topic_id: object.topic.id)
+      votes = DiscourseDebates::SuggestionVote.where(topic_id: topic.id).group(:vote).count
 
-      {
-        user_vote: user_vote_for_topic,
-        counts: {
-          yes: votes.yes.count,
-          no: votes.no.count,
-        },
-      }
+      { counts: { yes: votes["yes"] || 0, no: votes["no"] || 0 }, user_vote: user_vote(topic) }
+    end
+
+    def include_debate_suggestion?
+      debate_suggestion.present?
     end
 
     private
 
-    def suggestion_topic?
-      # ajuste isso para a sua lógica real
-      object.topic.category&.slug == "suggestion-box"
+    def suggestion_topic?(topic)
+      topic.category_id == SiteSetting.discourse_debates_suggestion_category_id
     end
 
-    def user_vote_for_topic
+    def user_vote(topic)
       return nil unless scope.user
 
-      vote = DiscourseDebates::SuggestionVote.find_by(
-        topic_id: object.topic.id,
-        user_id: scope.user.id
-      )
-
-      vote&.vote
+      DiscourseDebates::SuggestionVote.find_by(topic_id: topic.id, user_id: scope.user.id)&.vote
     end
   end
 end

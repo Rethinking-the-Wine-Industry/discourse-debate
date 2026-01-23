@@ -1,45 +1,65 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
+import { fn } from "@ember/helper";
+import { on } from "@ember/modifier";
 import { action } from "@ember/object";
+import { eq } from "truth-helpers";
+import dIcon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
 
 export default class DebateSuggestion extends Component {
+  @tracked isSubmitting = false;
+  @tracked counts = null;
+  @tracked userVote = null;
+
+  constructor() {
+    super(...arguments);
+
+    const suggestion = this.suggestion;
+    if (suggestion) {
+      this.counts = { ...suggestion.counts };
+      this.userVote = suggestion.user_vote;
+    }
+  }
+
+  get topic() {
+    return this.args.outletArgs.topic;
+  }
+
   get suggestion() {
-    return this.args.outletArgs?.topicView?.debate_suggestion;
+    return this.topic?.debate_suggestion;
   }
 
-  get counts() {
-    return this.suggestion?.counts;
-  }
-
-  get userVote() {
-    return this.suggestion?.user_vote;
-  }
-
-  get shouldRender() {
-    return !!this.suggestion;
+  get disableButtons() {
+    return this.isSubmitting;
   }
 
   @action
-  vote(value) {
-    if (!this.args.outletArgs?.topic) {
+  async vote(value) {
+    if (this.disableButtons) {
       return;
     }
 
-    ajax(
-      `/debates/suggestions/${this.args.outletArgs.topic.id}/vote`,
-      {
+    this.isSubmitting = true;
+
+    try {
+      const result = await ajax(`/debates/suggestions/${this.topic.id}/vote`, {
         type: "POST",
         data: { vote: value },
-      }
-    ).then((result) => {
-      // Atualiza o estado local sem reload
-      this.suggestion.user_vote = result.vote;
-      this.suggestion.counts = result.counts;
-    });
+      });
+
+      this.counts = result.counts;
+      this.userVote = result.vote;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Vote failed", e);
+    } finally {
+      this.isSubmitting = false;
+    }
   }
 
   <template>
-    {{#if this.shouldRender}}
+    {{#if this.suggestion}}
       <div class="debate-suggestion-panel">
         <p class="question">
           Do you think this issue should be open for debate?
@@ -47,19 +67,38 @@ export default class DebateSuggestion extends Component {
 
         <div class="votes">
           <button
-            class={{concat "vote yes " (if (eq this.userVote "yes") "active")}}
+            class="vote yes {{if (eq this.userVote 'yes') 'active'}}"
+            disabled={{this.disableButtons}}
             {{on "click" (fn this.vote "yes")}}
           >
-            👍 Yes ({{this.counts.yes}})
+            {{#if this.isSubmitting}}
+              {{dIcon "spinner" class="fa-spin"}}
+            {{else}}
+              {{dIcon "thumbs-up"}}
+            {{/if}}
+            Yes ({{this.counts.yes}})
           </button>
 
           <button
-            class={{concat "vote no " (if (eq this.userVote "no") "active")}}
+            class="vote no inverted {{if (eq this.userVote 'no') 'active'}}"
+            disabled={{this.disableButtons}}
             {{on "click" (fn this.vote "no")}}
           >
-            👎 No ({{this.counts.no}})
+            {{#if this.isSubmitting}}
+              {{dIcon "spinner" class="fa-spin"}}
+            {{else}}
+              {{dIcon "thumbs-up"}}
+            {{/if}}
+            No ({{this.counts.no}})
           </button>
         </div>
+
+        {{#if this.userVote}}
+          <p class="user-vote">
+            You voted:
+            <strong>{{this.userVote}}</strong>
+          </p>
+        {{/if}}
       </div>
     {{/if}}
   </template>

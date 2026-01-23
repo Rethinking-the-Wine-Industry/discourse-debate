@@ -1,9 +1,13 @@
 import Component from "@glimmer/component";
 
-export default class DebatePanelComponent extends Component {}
+export default class DebatePanelComponent extends Component {
+  get hello() {
+    return "Debate component is alive";
+  }
 
-<template>
+  <template>
     <div class="debate-panel-options">
-    Debate component works
+      {{this.hello}}
     </div>
-</template>
+  </template>
+}

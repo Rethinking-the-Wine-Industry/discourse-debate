@@ -1,18 +1,21 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
+import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 
 export default class SuggestionYesNoVote extends Component {
   @service currentUser;
   @service siteSettings;
 
+  // ---------- DATA ----------
+
   get topic() {
     return this.args.outletArgs?.topic;
   }
 
   get isEnabled() {
-    return this.siteSettings.discourse_debates_enabled;
+    return !!this.siteSettings.discourse_debates_enabled;
   }
 
   get isSuggestionBox() {
@@ -23,45 +26,94 @@ export default class SuggestionYesNoVote extends Component {
     );
   }
 
+  get shouldRender() {
+    return this.isEnabled && this.isSuggestionBox;
+  }
+
   get votes() {
-    return this.topic.custom_fields?.suggestion_votes || {
-      yes: 0,
-      no: 0,
-    };
+    return (
+      this.topic?.custom_fields?.suggestion_votes || {
+        yes: 0,
+        no: 0,
+      }
+    );
   }
 
   get userVote() {
-    return this.topic.custom_fields?.user_vote;
+    return this.topic?.custom_fields?.user_vote;
   }
 
   get canVote() {
-    return this.currentUser && !this.userVote;
+    return !!this.currentUser && !this.userVote;
+  }
+
+  // ---------- UI HELPERS ----------
+
+  get yesLabel() {
+    return `Yes (${this.votes.yes})`;
+  }
+
+  get noLabel() {
+    return `No (${this.votes.no})`;
+  }
+
+  get userVoteLabel() {
+    if (this.userVote === "yes" || this.userVote === 1) {
+      return "Yes";
+    }
+    if (this.userVote === "no" || this.userVote === 0) {
+      return "No";
+    }
+    return null;
+  }
+
+  get yesDisabled() {
+    return !this.canVote;
+  }
+
+  get noDisabled() {
+    return !this.canVote;
+  }
+
+  // ---------- ACTIONS ----------
+
+  @action
+  voteYes() {
+    this.submitVote("yes");
   }
 
   @action
-  async vote(value) {
+  voteNo() {
+    this.submitVote("no");
+  }
+
+  async submitVote(value) {
+    if (!this.topic) {
+      return;
+    }
+
     try {
-      const result = await ajax(
-        `/debates/suggestions/${this.topic.id}/vote`,
-        {
-          type: "POST",
-          data: { vote: value },
-        }
-      );
+      const result = await ajax(`/debates/suggestions/${this.topic.id}/vote`, {
+        type: "POST",
+        data: { vote: value },
+      });
 
       this.topic.custom_fields ||= {};
       this.topic.custom_fields.suggestion_votes = {
-        yes: result.yes,
-        no: result.no,
+        yes: result.counts.yes,
+        no: result.counts.no,
       };
-      this.topic.custom_fields.user_vote = result.user_vote;
+      this.topic.custom_fields.user_vote = result.vote;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error("Vote failed", e);
     }
   }
 
+  // ---------- TEMPLATE ----------
+
   <template>
-    {{#if (and this.isEnabled this.isSuggestionBox)}}
+    {{#if this.shouldRender}}
       <div class="debate-suggestion-vote">
         <div class="question">
           Do you think this issue should be open for debate?
@@ -70,27 +122,25 @@ export default class SuggestionYesNoVote extends Component {
         <div class="buttons">
           <DButton
             @icon="thumbs-up"
-            @label={{concat "Yes (" this.votes.yes ")"}}
-            @action={{fn this.vote "yes"}}
-            @disabled={{not this.canVote}}
+            @label={{this.yesLabel}}
+            @action={{this.voteYes}}
+            @disabled={{this.yesDisabled}}
             class="btn-primary"
           />
 
           <DButton
             @icon="thumbs-down"
-            @label={{concat "No (" this.votes.no ")"}}
-            @action={{fn this.vote "no"}}
-            @disabled={{not this.canVote}}
+            @label={{this.noLabel}}
+            @action={{this.voteNo}}
+            @disabled={{this.noDisabled}}
             class="btn-danger"
           />
         </div>
 
-        {{#if this.userVote}}
+        {{#if this.userVoteLabel}}
           <div class="user-vote">
             You voted:
-            <strong>
-              {{if (eq this.userVote 1) "Yes" "No"}}
-            </strong>
+            <strong>{{this.userVoteLabel}}</strong>
           </div>
         {{/if}}
       </div>
