@@ -7,8 +7,14 @@ module DiscourseDebates
     belongs_to :user
     belongs_to :topic
 
+    enum vote: {
+      no: -1,
+      yes: 1
+    }
+
     validates :topic_id, presence: true
     validates :user_id, presence: true
     validates :user_id, uniqueness: { scope: :topic_id }
+    validates :vote, presence: true
   end
 end

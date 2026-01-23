@@ -5,6 +5,7 @@ class CreateDiscourseDebatesSuggestionVotes < ActiveRecord::Migration[7.0]
     create_table :discourse_debates_suggestion_votes do |t|
       t.integer :topic_id, null: false
       t.integer :user_id, null: false
+      t.integer :vote, null: false
       t.timestamps
     end
 

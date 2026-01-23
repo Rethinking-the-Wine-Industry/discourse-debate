@@ -15,10 +15,16 @@ after_initialize do
       isolate_namespace DiscourseDebates
     end
   end
-  
+
   Discourse::Application.routes.append do
     mount ::DiscourseDebates::Engine, at: "/debates"
   end
+
+  require_relative "app/serializers/discourse_debates/topic_view_serializer_extension"
+
+  ::TopicViewSerializer.prepend(
+    DiscourseDebates::TopicViewSerializerExtension
+  )
 end
 
 
