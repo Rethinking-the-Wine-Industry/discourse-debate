@@ -1,7 +1,5 @@
-# frozen_string_literal: true
-
 module DiscourseDebates
-  class SuggestionVote < ActiveRecord::Base
+  class SuggestionVote < ::ActiveRecord::Base
     self.table_name = "discourse_debates_suggestion_votes"
 
     belongs_to :user

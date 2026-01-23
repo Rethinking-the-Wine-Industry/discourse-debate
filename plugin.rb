@@ -8,14 +8,9 @@ register_asset "config/settings.yml"
 
 enabled_site_setting :discourse_debates_enabled
 
-after_initialize do
-  module ::DiscourseDebates
-    class Engine < ::Rails::Engine
-      engine_name "discourse_debates"
-      isolate_namespace DiscourseDebates
-    end
-  end
+require_relative "lib/discourse_debates/engine"
 
+after_initialize do
   Discourse::Application.routes.append do
     mount ::DiscourseDebates::Engine, at: "/debates"
   end
@@ -26,5 +21,3 @@ after_initialize do
     DiscourseDebates::TopicViewSerializerExtension
   )
 end
-
-
