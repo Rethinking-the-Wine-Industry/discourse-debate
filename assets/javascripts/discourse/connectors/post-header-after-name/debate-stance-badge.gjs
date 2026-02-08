@@ -1,8 +1,12 @@
 import Component from "@glimmer/component";
 
 export default class DebateStanceBadge extends Component {
+  get post() {
+    return this.args.outletArgs.post;
+  }
+
   get stance() {
-    return this.args.outletArgs?.post?.topic_user_custom_fields?.debate_stance;
+    return this.post.current_user_stance;
   }
 
   get label() {
@@ -15,7 +19,7 @@ export default class DebateStanceBadge extends Component {
 
   <template>
     {{#if this.label}}
-      <span class="debate-stance-badge {{this.stance}}">
+      <span class="user-badge debate-stance-badge {{this.stance}}">
         {{this.label}}
       </span>
     {{/if}}

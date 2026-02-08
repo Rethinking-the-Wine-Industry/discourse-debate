@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateDiscourseDebates < ActiveRecord::Migration[7.0]
   def change
     create_table :discourse_debates do |t|

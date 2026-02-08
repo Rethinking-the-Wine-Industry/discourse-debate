@@ -3,102 +3,120 @@ import { tracked } from "@glimmer/tracking";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
-import { eq } from "truth-helpers";
-import dIcon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
 
-export default class DebateSuggestion extends Component {
-  @tracked isSubmitting = false;
-  @tracked counts = null;
-  @tracked userVote = null;
+export default class SuggestionYesNoVote extends Component {
+  @tracked loading = false;
+  @tracked current_user_vote = null;
+  @tracked suggestion_vote_count = null;
 
   constructor() {
     super(...arguments);
-
-    const suggestion = this.suggestion;
-    if (suggestion) {
-      this.counts = { ...suggestion.counts };
-      this.userVote = suggestion.user_vote;
-    }
+    this.current_user_vote = this.topic.current_user_vote;
+    this.suggestion_vote_count = this.topic.suggestion_vote_count || {
+      yes: 0,
+      no: 0,
+    };
   }
 
   get topic() {
-    return this.args.outletArgs.topic;
+    return this.args.topic;
   }
 
-  get suggestion() {
-    return this.topic?.debate_suggestion;
+  get enabled() {
+    return this.topic.is_suggestion;
   }
 
-  get disableButtons() {
-    return this.isSubmitting;
+  get canVote() {
+    return !this.current_user_vote;
+  }
+
+  get yesLabel() {
+    return `Yes (${this.suggestion_vote_count.yes})`;
+  }
+
+  get noLabel() {
+    return `No (${this.suggestion_vote_count.no})`;
+  }
+
+  get isYes() {
+    return this.current_user_vote === "yes" || this.current_user_vote === 1;
+  }
+
+  get isNo() {
+    return this.current_user_vote === "no" || this.current_user_vote === -1;
+  }
+
+  get yesClass() {
+    return this.isYes ? "active" : "";
+  }
+
+  get noClass() {
+    return this.isNo ? "active" : "";
+  }
+
+  get userVoteLabel() {
+    if (this.isYes) {
+      return "Yes";
+    }
+    if (this.isNo) {
+      return "No";
+    }
+    return null;
   }
 
   @action
-  async vote(value) {
-    if (this.disableButtons) {
+  voteYes() {
+    this.submitVote("yes");
+  }
+
+  @action
+  voteNo() {
+    this.submitVote("no");
+  }
+
+  async submitVote(value) {
+    if (!this.topic) {
       return;
     }
 
-    this.isSubmitting = true;
-
     try {
-      const result = await ajax(`/debates/suggestions/${this.topic.id}/vote`, {
+      this.loading = true;
+      const result = await ajax(`/debates/suggestions/${this.topic.id}`, {
         type: "POST",
         data: { vote: value },
       });
 
-      this.counts = result.counts;
-      this.userVote = result.vote;
+      this.current_user_vote = result.vote;
+      this.suggestion_vote_count = result.counts;
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error("Vote failed", e);
+      popupAjaxError(e);
     } finally {
-      this.isSubmitting = false;
+      this.loading = false;
     }
   }
 
   <template>
-    {{#if this.suggestion}}
-      <div class="debate-suggestion-panel">
-        <p class="question">
+    {{#if this.enabled}}
+      <div class="debate-suggestion-panel debate-suggestion-vote">
+        <div class="question">
           Do you think this issue should be open for debate?
-        </p>
+        </div>
 
         <div class="votes">
           <button
-            class="vote yes {{if (eq this.userVote 'yes') 'active'}}"
-            disabled={{this.disableButtons}}
-            {{on "click" (fn this.vote "yes")}}
-          >
-            {{#if this.isSubmitting}}
-              {{dIcon "spinner" class="fa-spin"}}
-            {{else}}
-              {{dIcon "thumbs-up"}}
-            {{/if}}
-            Yes ({{this.counts.yes}})
-          </button>
+            disabled={{this.loading}}
+            class="btn btn-default {{this.yesClass}}"
+            {{on "click" (fn this.voteYes)}}
+          > {{this.yesLabel}}</button>
 
           <button
-            class="vote no inverted {{if (eq this.userVote 'no') 'active'}}"
-            disabled={{this.disableButtons}}
-            {{on "click" (fn this.vote "no")}}
-          >
-            {{#if this.isSubmitting}}
-              {{dIcon "spinner" class="fa-spin"}}
-            {{else}}
-              {{dIcon "thumbs-up"}}
-            {{/if}}
-            No ({{this.counts.no}})
-          </button>
+            disabled={{this.loading}}
+            class="btn btn-default {{this.noClass}}"
+            {{on "click" (fn this.voteNo)}}
+          > {{this.noLabel}}</button>
         </div>
-
-        {{#if this.userVote}}
-          <p class="user-vote">
-            You voted:
-            <strong>{{this.userVote}}</strong>
-          </p>
-        {{/if}}
       </div>
     {{/if}}
   </template>

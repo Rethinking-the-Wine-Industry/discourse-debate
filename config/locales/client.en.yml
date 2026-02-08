@@ -1,0 +1,4 @@
+en:
+  errors:
+    vote_too_fast: "Please wait a few seconds before changing your vote."
+    stance_too_fast: "Please wait a few seconds before changing your stance."

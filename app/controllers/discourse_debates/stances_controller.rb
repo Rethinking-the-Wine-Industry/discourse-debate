@@ -3,7 +3,6 @@
 module DiscourseDebates
   class StancesController < ::ApplicationController
     requires_plugin "discourse-debates"
-
     before_action :ensure_logged_in
 
     def set
@@ -12,16 +11,18 @@ module DiscourseDebates
       topic_id = params[:topic_id].to_i
       stance_value = params[:stance]
 
-      # Verificamos se o model existe antes de chamar (debug útil)
-      unless defined?(::DiscourseDebates::Stance)
-        return render json: { error: "Model Stance não carregado corretamente" }, status: 500
-      end
-
       stance =
         ::DiscourseDebates::Stance.find_or_initialize_by(
           topic_id: topic_id,
           user_id: current_user.id,
         )
+
+      if stance.updated_at && stance.updated_at > 30.seconds.ago
+        render_json_error I18n.t("errors.stance_too_fast")
+        return
+      end
+
+      return if stance.persisted? && stance.stance == stance_value
 
       stance.stance = stance_value
 
@@ -31,45 +32,7 @@ module DiscourseDebates
         render_json_error(stance)
       end
     rescue ArgumentError
-      render json: { error: "Valor de stance inválido" }, status: 400
+      render json: { error: "Invalid stance." }, status: :bad_request
     end
   end
 end
-
-# module DiscourseDebates
-#   class StancesController < ::ApplicationController
-#     requires_plugin "discourse-debates"
-#     before_action :ensure_logged_in
-
-#     def set
-#       params.require(:topic_id)
-#       params.require(:stance)
-
-#       topic = Topic.find(params[:topic_id].to_i)
-#       guardian.ensure_can_see!(topic)
-
-#       result = setstance(topic: topic, user: current_user, stance: params[:stance])
-
-#       render json: MultiJson.dump(result)
-#     end
-
-#     private
-
-#     def setstance(topic:, user:, stance:)
-#       raise Discourse::InvalidAccess unless user
-
-#       stance = stance.to_s
-
-#       stance =
-#         DiscourseDebates::Stance.find_or_initialize_by(topic_id: topic_id, user_id: current_user.id)
-
-#       stance.stance = stance_value
-
-#       if stance.save
-#         render json: success_json
-#       else
-#         render_json_error(stance)
-#       end
-#     end
-#   end
-# end

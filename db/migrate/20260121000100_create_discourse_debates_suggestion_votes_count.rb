@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 class CreateDiscourseDebatesSuggestionVotes < ActiveRecord::Migration[7.0]
   def change
     create_table :discourse_debates_suggestion_votes do |t|
@@ -9,7 +8,7 @@ class CreateDiscourseDebatesSuggestionVotes < ActiveRecord::Migration[7.0]
     end
 
     add_index :discourse_debates_suggestion_votes,
-              [:topic_id, :user_id],
+              %i[topic_id user_id],
               unique: true,
               name: "idx_discourse_debates_suggestion_votes_unique"
 

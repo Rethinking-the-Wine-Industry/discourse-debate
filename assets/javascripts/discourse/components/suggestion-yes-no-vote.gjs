@@ -1,33 +1,24 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
-import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import { ajax } from "discourse/lib/ajax";
 
 export default class SuggestionYesNoVote extends Component {
-  @service currentUser;
-  @service siteSettings;
+  @tracked loading = false;
+  @tracked user_vote = null;
 
-  // ---------- DATA ----------
+  constructor() {
+    super(...arguments);
+    this.user_vote = this.topic.current_user_vote;
+  }
 
   get topic() {
-    return this.args.outletArgs?.topic;
+    return this.args.topic;
   }
 
-  get isEnabled() {
-    return !!this.siteSettings.discourse_debates_enabled;
-  }
-
-  get isSuggestionBox() {
-    return (
-      this.topic &&
-      this.topic.category_id ===
-        this.siteSettings.discourse_debates_suggestion_category_id
-    );
-  }
-
-  get shouldRender() {
-    return this.isEnabled && this.isSuggestionBox;
+  get enabled() {
+    return this.topic.is_suggestion;
   }
 
   get votes() {
@@ -39,15 +30,9 @@ export default class SuggestionYesNoVote extends Component {
     );
   }
 
-  get userVote() {
-    return this.topic?.custom_fields?.user_vote;
-  }
-
   get canVote() {
-    return !!this.currentUser && !this.userVote;
+    return !this.user_vote;
   }
-
-  // ---------- UI HELPERS ----------
 
   get yesLabel() {
     return `Yes (${this.votes.yes})`;
@@ -74,8 +59,6 @@ export default class SuggestionYesNoVote extends Component {
   get noDisabled() {
     return !this.canVote;
   }
-
-  // ---------- ACTIONS ----------
 
   @action
   voteYes() {
@@ -110,10 +93,8 @@ export default class SuggestionYesNoVote extends Component {
     }
   }
 
-  // ---------- TEMPLATE ----------
-
   <template>
-    {{#if this.shouldRender}}
+    {{#if this.enabled}}
       <div class="debate-suggestion-vote">
         <div class="question">
           Do you think this issue should be open for debate?

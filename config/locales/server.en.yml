@@ -3,3 +3,6 @@ en:
     discourse_debates_enabled: "Enable Debates"
     discourse_debates_suggestion_min_votes: "Min votes for a Suggestion to become a Debate"
     discourse_debates_suggestion_days: "After X days the Suggestions will be evaluated, and the ones with more than Y min votes, will become a Debate"
+  errors:
+    vote_too_fast: "Please wait a few seconds before changing your vote."
+    stance_too_fast: "Please wait a few seconds before changing your stance."

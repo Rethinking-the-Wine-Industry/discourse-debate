@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# plugins/discourse-debates/db/migrate/20260125000100_create_debate_stances.rb
 class CreateDebateStances < ActiveRecord::Migration[7.0]
   def change
     create_table :discourse_debates_stances do |t|

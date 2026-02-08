@@ -4,17 +4,25 @@
 
 .segmented-control {
   display: inline-flex;
-  border: 1px solid var(--primary-low);
   border-radius: 999px;
   overflow: hidden;
 
-  button {
-    background: transparent;
-    border: none;
-    padding: 0.4em 0.9em;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--primary-medium);
+  button.btn {
+    padding: 8px 1.5rem;
+
+    &.for {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &.neutral {
+      border-radius: 0;
+    }
+
+    &.against {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
 
     &.active {
       background: var(--tertiary);
@@ -48,5 +56,19 @@
   &.against {
     background: #fdecea;
     color: #b42318;
+  }
+}
+
+article.post.discourse-debates {
+  &.stance-for {
+    background-color: rgb(0, 128, 0, 0.05);
+  }
+
+  &.stance-against {
+    background-color: rgb(220, 53, 69, 0.05);
+  }
+
+  &.stance-neutral {
+    background-color: rgb(108, 117, 125, 0.05);
   }
 }
